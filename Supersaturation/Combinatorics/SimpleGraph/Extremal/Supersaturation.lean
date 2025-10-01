@@ -18,7 +18,7 @@ variable {n : ℕ} {ε : ℝ}
 open Classical in
 /-- `overFin` is the finset of simple graphs having an edge density at least `turanDensity H + ε`.
 
-This is an auxiliary definition for the **Supersaturation** theorem. -/
+This is an auxiliary definition for the **supersaturation theorem**. -/
 noncomputable abbrev overFin (n : ℕ) (H : SimpleGraph W) (ε : ℝ) : Finset (SimpleGraph (Fin n)) :=
   { F : SimpleGraph (Fin n) | ∃ _ : DecidableRel F.Adj,
     #F.edgeFinset ≥ (turanDensity H + ε) * n.choose 2 }
@@ -37,7 +37,7 @@ theorem overFin_nonempty (hn : 2 ≤ n) (h : H.turanDensity + ε ≤ 1) : (overF
 /-- `overFin.minLabelledCopyCount` is the minimum number of copies of `H` in any simple graph
 in `overFin`.
 
-This is an auxiliary definition for the **Supersaturation** theorem. -/
+This is an auxiliary definition for the **supersaturation theorem**. -/
 noncomputable abbrev overFin.minLabelledCopyCount
     (n : ℕ) (H : SimpleGraph W) (ε : ℝ) :=
   WithTop.untopD 0 <| (overFin n H ε).inf (labelledCopyCount · H)
@@ -55,13 +55,13 @@ open Classical in
 /-- `overPowersetCard` is the finset of `n`-sized finsets of vertices whose induced subgraphs
 `G.induce s` have an edge density at least `turanDensity H + ε`.
 
-This is an auxiliary definition for the **Supersaturation** theorem. -/
+This is an auxiliary definition for the **supersaturation theorem**. -/
 noncomputable abbrev overPowersetCard
     (G : SimpleGraph V) (n : ℕ) (H : SimpleGraph W) (ε : ℝ) : Finset (Finset V) :=
   { s ∈ univ.powersetCard n | #(G.induce s.toSet).edgeFinset ≥ (turanDensity H + ε) * n.choose 2 }
 
 omit [Fintype W] [DecidableRel H.Adj] in
-/-- This is an auxiliary definition for the **Supersaturation** theorem. -/
+/-- This is an auxiliary definition for the **supersaturation theorem**. -/
 theorem card_overPowersetCard_ge (hn : 2 ≤ n) (hcard : n ≤ card V)
     (hcard_edges : #G.edgeFinset ≥ (H.turanDensity + ε) * (card V).choose 2)
     (hπ : (H.turanDensity + ε / 2) < 1) :
@@ -117,7 +117,7 @@ theorem card_overPowersetCard_ge (hn : 2 ≤ n) (hcard : n ≤ card V)
     ← one_sub_mul, ← sub_le_iff_le_add, add_tsub_add_eq_tsub_left, sub_half,
     ← div_le_iff₀' (sub_pos_of_lt hπ), le_div_iff₀ (mod_cast Nat.choose_pos hcard)] at hS
 
-/-- This is an auxiliary definition for the **Supersaturation** theorem. -/
+/-- This is an auxiliary definition for the **supersaturation theorem**. -/
 theorem card_overPowersetCard_le (hn : 2 ≤ n) (hcard : card W ≤ n) (h : H.turanDensity + ε ≤ 1) :
   (overFin.minLabelledCopyCount n H ε) * #(overPowersetCard G n H ε)
     ≤ G.labelledCopyCount H * (card V - card W).choose (n - card W) := by
@@ -153,7 +153,7 @@ end Supersaturation
 /-- If `G` has sufficently many vertices `n` and at least `(turanDensity H + ε) * n.choose 2`
 many edges, then `G` contains at least `δ * n ^ v(H)` copies of `H`.
 
-This is the **Supersaturation** theorem for simple graphs. -/
+This is the **supersaturation theorem** for simple graphs. -/
 theorem labelledCopyCount_ge_of_card_edgeFinset {ε : ℝ} (hε_pos : 0 < ε) :
     ∃ δ > (0 : ℝ), ∃ N, ∀ {V : Type*} [Fintype V], N ≤ card V →
       ∀ {G : SimpleGraph V} [DecidableRel G.Adj],
