@@ -149,8 +149,8 @@ theorem card_overPowersetCard_le (hn : 2 ≤ n) (hcard : card W ≤ n) (h : H.tu
 
 end Supersaturation
 
-/-- If `G` with sufficently many vertices `n` has an edge density at least
-`(turanDensity H + ε) * n.choose` then, `G` contains at least `δ * n ^ v(H)` copies of `H`.
+/-- If `G` has sufficently many vertices `n` and at least `(turanDensity H + ε) * n.choose 2`
+many edges, then `G` contains at least `δ * n ^ v(H)` copies of `H`.
 
 This is the **Supersaturation** theorem for simple graphs. -/
 theorem labelledCopyCount_ge_of_card_edgeFinset {ε : ℝ} (hε_pos : 0 < ε) :
