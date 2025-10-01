@@ -74,7 +74,7 @@ theorem labelledCopyCount_induce_eq_card_filter_copy (s : Finset α) :
     (A.induce s.toSet).labelledCopyCount B
       = #{f : Copy B A | univ.map f.toEmbedding ⊆ s} := by
   classical rw [labelledCopyCount_eq_card_copy]
-  apply Finset.card_bij' (fun f _ ↦ (Copy.induce A s).comp f)
+  apply card_bij' (fun f _ ↦ (Copy.induce A s).comp f)
       (fun f hf ↦ ⟨⟨fun w ↦ ⟨f w, ?_⟩, f.toHom.map_adj⟩, ?_⟩)
       (fun u hu ↦ ?_) (fun _ _ ↦ by simp) (fun u hu ↦ ?_) (fun u hu ↦ ?_)
   · rw [mem_filter_univ] at hf

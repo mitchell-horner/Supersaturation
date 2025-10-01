@@ -95,8 +95,9 @@ theorem card_overPowersetCard_ge (hn : 2 ≤ n) (hcard : n ≤ card V)
           rw [mem_powersetCard_univ] at hs
           simp_rw [coe_sort_coe, card_coe, hs, le_rfl]
       · rw [mul_assoc, ← card_univ, ← card_powersetCard, ← Nat.cast_sub (card_le_card hS_subset),
-          ← card_sdiff hS_subset, ← smul_eq_mul, Nat.cast_smul_eq_nsmul, ← sum_const, Nat.cast_sum]
-        apply sum_le_sum (fun s hs ↦ ?_)
+          ← card_sdiff_of_subset hS_subset, ← smul_eq_mul, Nat.cast_smul_eq_nsmul, ← sum_const,
+          Nat.cast_sum]
+        refine sum_le_sum (fun s hs ↦ ?_)
         obtain ⟨hs, nhs⟩ := mem_sdiff.mp hs
         contrapose! nhs with hcard_edges
         exact mem_filter.mpr ⟨hs, by convert hcard_edges.le.ge⟩
@@ -137,12 +138,12 @@ theorem card_overPowersetCard_le (hn : 2 ≤ n) (hcard : card W ≤ n) (h : H.tu
         refine ⟨inferInstance, ?_⟩
         simp_rw [(G.induce s.toSet).card_edgeFinset_map f.toEmbedding]
         convert hcard_edges
-      simp_rw [overFin.minLabelledCopyCount_eq_inf' hn h, Finset.inf'_le_iff]
+      simp_rw [overFin.minLabelledCopyCount_eq_inf' hn h, inf'_le_iff]
       exact ⟨(G.induce s.toSet).map f.toEmbedding, hf,
         by rw [← labelledCopyCount_congr_left (Iso.map f _)]⟩
     · exact Nat.zero_le <| (G.induce s.toSet).labelledCopyCount H
   · have hf {f : Copy H G} : #(univ.map f.toEmbedding) ≤ n := by
-      rwa [← card_univ, ← Finset.card_map f.toEmbedding] at hcard
+      rwa [← card_univ, ← card_map f.toEmbedding] at hcard
     classical simp_rw [T, card_filter, sum_product_right, ← card_filter,
       card_filter_powersetCard_superset (subset_univ _) hf, card_map, card_univ,
       sum_const, smul_eq_mul, card_univ, labelledCopyCount_eq_card_copy, le_rfl]
@@ -180,7 +181,7 @@ theorem labelledCopyCount_ge_of_card_edgeFinset {ε : ℝ} (hε_pos : 0 < ε) :
     -- show there is at least 1 copy of `H` in any `F`
     have hc_pos : 0 < c := by
       simp_rw [c, Supersaturation.overFin.minLabelledCopyCount_eq_inf' ht_2 hπH_halfε.le,
-          Finset.lt_inf'_iff, mem_filter_univ, forall_exists_index, labelledCopyCount_pos]
+          lt_inf'_iff, mem_filter_univ, forall_exists_index, labelledCopyCount_pos]
       intro F _ hF
       conv at hF =>
         enter [2, 2]
