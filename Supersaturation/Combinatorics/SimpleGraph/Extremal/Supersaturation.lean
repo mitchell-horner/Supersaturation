@@ -161,8 +161,8 @@ many edges, then `G` contains at least `δ * n ^ v(H)` copies of `H`.
 This is the **supersaturation theorem** for simple graphs. -/
 theorem labelledCopyCount_ge_of_card_edgeFinset {ε : ℝ} (hε_pos : 0 < ε) :
     ∃ δ > (0 : ℝ), ∃ N, ∀ n ≥ N, ∀ {G : SimpleGraph (Fin n)} [DecidableRel G.Adj],
-        #G.edgeFinset ≥ (turanDensity H + ε) * n.choose 2 →
-          G.labelledCopyCount H ≥ δ * n ^ card W := by
+      #G.edgeFinset ≥ (turanDensity H + ε) * n.choose 2 →
+        G.labelledCopyCount H ≥ δ * n ^ card W := by
   rcases lt_or_ge 1 (turanDensity H + ε) with hπH_ε | hπH_ε
   · refine ⟨1, zero_lt_one, 2, fun n hn {G} _ hcard_edges ↦ ?_⟩
     absurd hcard_edges
