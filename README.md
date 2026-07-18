@@ -10,7 +10,7 @@ Suppose $\varepsilon > 0$ is a positive real number, and $G,H$ are simple graphs
 
 ```lean
 theorem labelledCopyCount_ge_of_card_edgeFinset {ε : ℝ} (hε_pos : 0 < ε) :
-  ∃ δ > (0 : ℝ), ∃ N, ∀ n ≥ N, ∀ {G : SimpleGraph (Fin n)} [DecidableRel G.Adj],
+  ∃ δ > (0 : ℝ), ∀ᶠ n in atTop, ∀ {G : SimpleGraph (Fin n)} [DecidableRel G.Adj],
     #G.edgeFinset ≥ (turanDensity H + ε) * n.choose 2 →
       G.labelledCopyCount H ≥ δ * n ^ card W
 ```
