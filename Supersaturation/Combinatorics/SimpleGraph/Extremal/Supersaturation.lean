@@ -161,12 +161,13 @@ omit [DecidableRel H.Adj] in
 many edges, then `G` contains at least `δ * n ^ v(H)` copies of `H`.
 
 This is the **supersaturation theorem** for simple graphs. -/
-theorem labelledCopyCount_ge_of_card_edgeFinset {ε : ℝ} (hε_pos : 0 < ε) :
-    ∃ δ > (0 : ℝ), ∃ N, ∀ n ≥ N, ∀ {G : SimpleGraph (Fin n)} [DecidableRel G.Adj],
+theorem eventually_labelledCopyCount_ge_of_card_edgeFinset {ε : ℝ} (hε_pos : 0 < ε) :
+    ∃ δ > (0 : ℝ), ∀ᶠ n in atTop, ∀ {G : SimpleGraph (Fin n)} [DecidableRel G.Adj],
       #G.edgeFinset ≥ (turanDensity H + ε) * n.choose 2 →
         G.labelledCopyCount H ≥ δ * n ^ card W := by
   rcases lt_or_ge 1 (turanDensity H + ε) with hπH_ε | hπH_ε
-  · refine ⟨1, zero_lt_one, 2, fun n hn {G} _ hcard_edges ↦ ?_⟩
+  · refine ⟨1, zero_lt_one,
+      eventually_atTop.mpr ⟨2, fun n hn {G} _ hcard_edges ↦ ?_⟩⟩
     absurd hcard_edges
     push Not
     apply lt_of_lt_of_le' (lt_mul_left (mod_cast Nat.choose_pos hn) hπH_ε)
@@ -205,7 +206,8 @@ theorem labelledCopyCount_ge_of_card_edgeFinset {ε : ℝ} (hε_pos : 0 < ε) :
       · apply div_pos (half_pos hε_pos)
         rwa [← sub_pos] at hπH_halfε
       · exact mod_cast Nat.choose_pos ht_cardW
-    refine ⟨δ' * m, mul_pos hδ'_pos hm_pos, max t N, fun n hn G _ hcard_edges ↦ ?_⟩
+    refine ⟨δ' * m, mul_pos hδ'_pos hm_pos,
+      eventually_atTop.mpr ⟨max t N, fun n hn G _ hcard_edges ↦ ?_⟩⟩
     have ht_n : t ≤ n := (le_max_left t N).trans hn
     -- there are at least `δ' * n.choose (card W)` copies of `H` in `G`
     have h : δ' * n.choose (card W) ≤ G.labelledCopyCount H := by
