@@ -58,7 +58,7 @@ open Classical in
 This is an auxiliary definition for the **supersaturation theorem**. -/
 noncomputable abbrev overPowersetCard
     (G : SimpleGraph (Fin n)) (k : ℕ) (H : SimpleGraph W) (ε : ℝ) : Finset (Finset (Fin n)) :=
-  { s ∈ univ.powersetCard k | #(G.induce s.toSet).edgeFinset ≥ (turanDensity H + ε) * k.choose 2 }
+  { s ∈ univ.powersetCard k | #(G.induce s).edgeFinset ≥ (turanDensity H + ε) * k.choose 2 }
 
 omit [Fintype W] [DecidableRel H.Adj] in
 /-- This is an auxiliary definition for the **supersaturation theorem**. -/
@@ -75,7 +75,7 @@ theorem card_overPowersetCard_ge {k : ℕ} (hk : 2 ≤ k) (hn : k ≤ n)
     -- double count `(s, e)` where `s` is an `k`-sized subset containing the vertices of `e`
     let T := (univ.powersetCard k ×ˢ G.edgeFinset).filter fun (s, e) ↦ e.toFinset ⊆ s
     trans (#T : ℝ)
-    · have he {e : G.edgeFinset} := hk.trans_eq' (card_toFinset_mem_edgeFinset e)
+    · have he {e : G.edgeFinset} := hk.trans_eq' (card_toFinset_mem_edgeFinset e).symm
       simp_rw [T, card_filter, sum_product_right, ← card_filter, ← sum_attach G.edgeFinset,
         card_filter_powersetCard_superset (subset_univ _) he, card_univ,
         card_toFinset_mem_edgeFinset, sum_const, smul_eq_mul, card_attach, Nat.cast_mul,
@@ -85,16 +85,16 @@ theorem card_overPowersetCard_ge {k : ℕ} (hk : 2 ≤ k) (hn : k ≤ n)
       conv =>
         enter [1, 1, 2, s, 1]
         rw [← @toFinset_coe _ s (inst s), ← map_edgeFinset_induce]
-      simp_rw [card_map, ← sum_inter_add_sum_diff (univ.powersetCard k) S,
+      simp_rw [card_map, ← sum_inter_add_sum_sdiff (univ.powersetCard k) S,
         inter_eq_right.mpr hS_subset, Nat.cast_add]
       apply add_le_add
       · rw [← Nat.cast_mul, Nat.cast_le, ← smul_eq_mul, ← sum_const]
         apply sum_le_sum (fun s hs ↦ ?_)
-        trans (card s.toSet).choose 2
-        · convert card_edgeFinset_le_card_choose_two
+        trans (Fintype.card s).choose 2
+        · exact card_edgeFinset_le_card_choose_two
         · apply hS_subset at hs
           rw [mem_powersetCard_univ] at hs
-          simp_rw [coe_sort_coe, card_coe, hs, le_rfl]
+          simp_rw [card_coe, hs, le_rfl]
       · conv =>
           enter [2, 1, 1, 1]
           rw [← Fintype.card_fin n]
@@ -103,12 +103,12 @@ theorem card_overPowersetCard_ge {k : ℕ} (hk : 2 ≤ k) (hn : k ≤ n)
           ← smul_eq_mul, Nat.cast_smul_eq_nsmul, ← sum_const, Nat.cast_sum]
         refine sum_le_sum (fun s hs ↦ ?_)
         obtain ⟨hs, nhs⟩ := mem_sdiff.mp hs
-        contrapose! nhs with hcard_edges
-        exact mem_filter.mpr ⟨hs, by convert hcard_edges.le.ge⟩
+        rw [mem_filter, not_and_or, ge_iff_le, not_le] at nhs
+        exact (nhs.neg_resolve_left hs).le.trans_eq' (mod_cast by convert rfl)
   -- solve for `#S` using the bound on the number of edges of `G`
   rw [← div_le_div_iff_of_pos_right (mod_cast Nat.choose_pos hn : (0 : ℝ) < n.choose k),
     ← div_le_div_iff_of_pos_right (mod_cast Nat.choose_pos hk : (0 : ℝ) < k.choose 2), div_div,
-    mul_div_assoc, ← Nat.cast_mul, Nat.choose_mul hn hk, Nat.cast_mul, div_mul_cancel_right₀ <|
+    mul_div_assoc, ← Nat.cast_mul, Nat.choose_mul hk, Nat.cast_mul, div_mul_cancel_right₀ <|
     mod_cast Nat.choose_ne_zero (Nat.sub_le_sub_right hn 2), ← div_eq_mul_inv] at hS
   rw [ge_iff_le, ← le_div_iff₀ <| mod_cast Nat.choose_pos (hk.trans hn)] at hcard_edges
   apply hcard_edges.trans at hS
@@ -121,32 +121,33 @@ theorem card_overPowersetCard_ge {k : ℕ} (hk : 2 ≤ k) (hn : k ≤ n)
     ← one_sub_mul, ← sub_le_iff_le_add, add_tsub_add_eq_tsub_left, sub_half,
     ← div_le_iff₀' (sub_pos_of_lt hπ), le_div_iff₀ (mod_cast Nat.choose_pos hn)] at hS
 
+omit [DecidableRel G.Adj] [DecidableRel H.Adj] in
 /-- This is an auxiliary definition for the **supersaturation theorem**. -/
 theorem card_overPowersetCard_le
   {k : ℕ} (hk : 2 ≤ k) (hcard : card W ≤ k) (h : H.turanDensity + ε ≤ 1) :
   (overFin.minLabelledCopyCount k H ε) * #(overPowersetCard G k H ε)
-    ≤ G.labelledCopyCount H * (n - card W).choose (k - card W) := by
+    ≤ G.labelledCopyCount H * (n - card W).choose (k - card W) := by classical
   -- double count `(s, f)` where `s` is an `k`-sized subset containing the image of `f`
-  classical let T := (univ.powersetCard k ×ˢ univ).filter
-              fun (s, (f : Copy H G)) ↦ univ.map f.toEmbedding ⊆ s
+  let T := (univ.powersetCard k ×ˢ univ).filter
+    fun (s, (f : Copy H G)) ↦ univ.map f.toEmbedding ⊆ s
   trans #T
   · simp_rw [T, card_filter, sum_product, mul_sum]
     refine sum_le_sum (fun s hs ↦ ?_)
     classical rw [← card_filter, mul_ite, mul_one, mul_zero,
       ← labelledCopyCount_induce_eq_card_filter_copy s]
     split_ifs with hcard_edges
-    · have : Nonempty (s.toSet ≃ Fin k) := by
-        simp_rw [← card_eq, coe_sort_coe, card_coe, Fintype.card_fin, mem_powersetCard_univ.mp hs]
-      let f : s.toSet ≃ Fin k := Classical.arbitrary (s.toSet ≃ Fin k)
-      have hf : (G.induce s.toSet).map f.toEmbedding ∈ overFin k H ε := by
+    · have : Nonempty (s ≃ Fin k) := by
+        simp_rw [← card_eq, card_coe, Fintype.card_fin, mem_powersetCard_univ.mp hs]
+      let f : s ≃ Fin k := Classical.arbitrary (s ≃ Fin k)
+      have hf : (G.induce s).map f.toEmbedding ∈ overFin k H ε := by
         simp_rw [mem_filter_univ]
         refine ⟨inferInstance, ?_⟩
-        simp_rw [(G.induce s.toSet).card_edgeFinset_map f.toEmbedding]
-        convert hcard_edges
+        rw [(G.induce s).card_edgeFinset_map f.toEmbedding, ge_iff_le]
+        exact hcard_edges.le.trans_eq (mod_cast by convert rfl)
       simp_rw [overFin.minLabelledCopyCount_eq_inf' hk h, inf'_le_iff]
-      exact ⟨(G.induce s.toSet).map f.toEmbedding, hf,
+      exact ⟨(G.induce s).map f, hf,
         by rw [← labelledCopyCount_congr_left (Iso.map f _)]⟩
-    · exact Nat.zero_le <| (G.induce s.toSet).labelledCopyCount H
+    · exact Nat.zero_le _
   · have hf {f : Copy H G} : #(univ.map f.toEmbedding) ≤ k := by
       rwa [← card_univ, ← card_map f.toEmbedding] at hcard
     classical simp_rw [T, card_filter, sum_product_right, ← card_filter,
@@ -155,6 +156,7 @@ theorem card_overPowersetCard_le
 
 end Supersaturation
 
+omit [DecidableRel H.Adj] in
 /-- If `G` has sufficently many vertices `n` and at least `(turanDensity H + ε) * n.choose 2`
 many edges, then `G` contains at least `δ * n ^ v(H)` copies of `H`.
 
@@ -166,7 +168,7 @@ theorem labelledCopyCount_ge_of_card_edgeFinset {ε : ℝ} (hε_pos : 0 < ε) :
   rcases lt_or_ge 1 (turanDensity H + ε) with hπH_ε | hπH_ε
   · refine ⟨1, zero_lt_one, 2, fun n hn {G} _ hcard_edges ↦ ?_⟩
     absurd hcard_edges
-    push_neg
+    push Not
     apply lt_of_lt_of_le' (lt_mul_left (mod_cast Nat.choose_pos hn) hπH_ε)
     conv_rhs =>
       rw [← Fintype.card_fin n]
@@ -177,7 +179,8 @@ theorem labelledCopyCount_ge_of_card_edgeFinset {ε : ℝ} (hε_pos : 0 < ε) :
       rw [add_lt_add_iff_left, half_lt_self_iff]
       exact hε_pos
     -- find `t` such that every `F ∈ overFin` contains `H`
-    have ⟨t', ht'⟩ := isContained_of_card_edgeFinset H (half_pos hε_pos)
+    have ⟨t', ht'⟩ := eventually_atTop.mp <|
+      eventually_isContained_of_card_edgeFinset H (half_pos hε_pos)
     let t := max (max 2 t') (card W)
     -- bounds on `t`
     have ht_2 : 2 ≤ t := le_max_of_le_left (le_max_left 2 t')
@@ -206,11 +209,12 @@ theorem labelledCopyCount_ge_of_card_edgeFinset {ε : ℝ} (hε_pos : 0 < ε) :
     have ht_n : t ≤ n := (le_max_left t N).trans hn
     -- there are at least `δ' * n.choose (card W)` copies of `H` in `G`
     have h : δ' * n.choose (card W) ≤ G.labelledCopyCount H := by
-      have hchoose_mul : (n.choose (card W) : ℝ)
+      have h_choose_mul : (n.choose (card W) : ℝ)
           = n.choose t / (n - card W).choose (t - card W) * t.choose (card W) := by
         rw [div_mul_eq_mul_div, eq_div_iff_mul_eq (mod_cast Nat.choose_sub_ne_zero ht_n)]
-        exact_mod_cast (Nat.choose_mul ht_n ht_cardW).symm
-      rw [hchoose_mul, mul_rotate', mul_div_cancel₀ _ (mod_cast Nat.choose_ne_zero ht_cardW),
+        exact_mod_cast (Nat.choose_mul ht_cardW).symm
+        -- exact_mod_cast (Nat.choose_mul ht_n).symm
+      rw [h_choose_mul, mul_rotate', mul_div_cancel₀ _ (mod_cast Nat.choose_ne_zero ht_cardW),
         div_mul_eq_mul_div, mul_comm, div_le_iff₀ (mod_cast Nat.choose_sub_pos ht_n)]
       trans c * #(Supersaturation.overPowersetCard G t H (ε / 2))
       · rw [mul_assoc, mul_le_mul_iff_right₀ (mod_cast hc_pos)]

@@ -17,8 +17,8 @@ protected def map (f : α ↪ β) : Copy A (A.map f) :=
   ⟨⟨f, fun h ↦ by simp [h]⟩, f.injective⟩
 
 /-- The copy of `A.map ·` in `A`. -/
-protected def map' (f : α ≃ β) : Copy (A.map f.toEmbedding) A :=
-  ⟨⟨f.symm, fun h ↦ by simpa [Equiv.apply_eq_iff_eq_symm_apply] using h⟩, f.symm.injective⟩
+protected def map' (f : α ≃ β) : Copy (A.map f) A :=
+  ⟨⟨f.symm, fun hadj ↦ by simpa [← map_adj_apply (f := (f : α ↪ β))] using hadj⟩, f.symm.injective⟩
 
 /-- The copy of `A.comap ·` in `A`. -/
 protected def comap (f : β ↪ α) : Copy (A.comap f) A :=
@@ -71,33 +71,32 @@ omit [Fintype α] in
 /-- The number of copies of `B` in the induced subgraph of `A` by `s` is equal to the number of
 copies of `B` in `A` with vertices in `s`. -/
 theorem labelledCopyCount_induce_eq_card_filter_copy (s : Finset α) :
-    (A.induce s.toSet).labelledCopyCount B
-      = #{f : Copy B A | univ.map f.toEmbedding ⊆ s} := by
-  classical rw [labelledCopyCount_eq_card_copy]
-  apply card_bij' (fun f _ ↦ (Copy.induce A s).comp f)
-      (fun f hf ↦ ⟨⟨fun w ↦ ⟨f w, ?_⟩, f.toHom.map_adj⟩, ?_⟩)
-      (fun u hu ↦ ?_) (fun _ _ ↦ by simp) (fun u hu ↦ ?_) (fun u hu ↦ ?_)
-  · rw [mem_filter_univ] at hf
-    exact hf (mem_map_of_mem _ (mem_univ w))
-  · simpa [Injective] using f.injective
-  · simp [subset_iff, Copy.induce, Embedding.subtype,
-      Embedding.induce, Copy.toEmbedding]
-  · simp [Copy.ext_iff, Copy.induce, Embedding.subtype]
-  · simp [Copy.ext_iff, Copy.induce, Embedding.subtype]
+    (A.induce s).labelledCopyCount B
+      = #{f : Copy B A | univ.map f.toEmbedding ⊆ s} := by classical
+  rw [labelledCopyCount_eq_card_copy]
+  refine card_bij' (fun f _ ↦ (Copy.induce A s).comp f)
+    (fun f hf ↦ ⟨⟨fun w ↦ ⟨f w, ((mem_filter_univ f).mp hf) <|
+        mem_map_of_mem f.toEmbedding (mem_univ w)⟩, f.toHom.map_adj⟩,
+      fun _ _ h ↦ f.injective (Subtype.val_inj.mpr h)⟩)
+    (fun u hu ↦ by simp [subset_iff, Copy.induce, Copy.toEmbedding])
+    (fun _ _ ↦ mem_univ _)
+    (fun u hu ↦ by simp [Copy.ext_iff, Copy.induce])
+    (fun u hu ↦ Copy.ext_iff.mpr (fun _ ↦ by rfl))
 
 omit [Fintype α] in
 /-- The number of copies of `B` in the induced subgraph of `A` by `s` is equal to the number of
 copies of `B` in `A` with vertices in `s`. -/
 theorem labelledCopyCount_induce_eq_card_subtype_copy (s : Finset α) :
-    (A.induce s.toSet).labelledCopyCount B
+    (A.induce s).labelledCopyCount B
       = card {f : Copy B A // univ.map f.toEmbedding ⊆ s} := by
   rw [labelledCopyCount_induce_eq_card_filter_copy,
     ← card_univ, ← subtype_univ, card_subtype]
 
+omit [DecidableEq α] [Fintype (Copy B A)] in
 /-- The number of copies of `B` in the induced subgraph of `A` by `s` is at most the number of
 copies of `B` in `A`. -/
 theorem labelledCopyCount_induce_le (s : Finset α) :
-    (A.induce s.toSet).labelledCopyCount B ≤ A.labelledCopyCount B := by
+    (A.induce s).labelledCopyCount B ≤ A.labelledCopyCount B := by classical
   rw [labelledCopyCount_induce_eq_card_subtype_copy, labelledCopyCount_eq_card_copy]
   exact card_subtype_le (fun f : Copy B A ↦ univ.map f.toEmbedding ⊆ s)
 
