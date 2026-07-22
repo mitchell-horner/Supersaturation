@@ -6,13 +6,13 @@ This repository contains a formalisation of the supersaturation theorem in [Lean
 
 **The supersaturation theorem**
 
-Suppose $\varepsilon > 0$ is a positive real number, and $G,H$ are simple graphs. If the number of vertices $v(G)$ is sufficently large and $G$ has at least $(\pi(H) + \varepsilon) \binom{v(G)}{2}$ many edges, then there exists a positive real number $\delta > 0$ such that $G$ contains at least $\delta \cdot v(G) ^ {v(H)}$ copies of $H$.
+Suppose $\varepsilon > 0$ is a positive real number, and $G,H$ are simple graphs. If the number of vertices $v(G)$ is sufficiently large and $G$ has at least $(\pi(H) + \varepsilon) \binom{v(G)}{2}$ many edges, then $G$ contains at least $\delta \cdot v(G) ^ {v(H)}$ labelled copies of $H$, where $\delta = \delta(H, \varepsilon)$ is an explicit constant.
 
 ```lean
 theorem eventually_labelledCopyCount_ge_of_card_edgeFinset {ε : ℝ} (hε_pos : 0 < ε) :
-  ∃ δ > (0 : ℝ), ∀ᶠ n in atTop, ∀ {G : SimpleGraph (Fin n)} [DecidableRel G.Adj],
+  ∀ᶠ n in atTop, ∀ {G : SimpleGraph (Fin n)} [DecidableRel G.Adj],
     #G.edgeFinset ≥ (turanDensity H + ε) * n.choose 2 →
-      G.labelledCopyCount H ≥ δ * n ^ card W
+      G.labelledCopyCount H ≥ supersaturationConst H ε * n ^ card W
 ```
 
 ## Upstreaming to mathlib
