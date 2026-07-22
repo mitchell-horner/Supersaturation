@@ -32,9 +32,8 @@ end Copy
 
 section IsContained
 
-/-- `⊥` is contained in any simple graph having sufficiently many vertices. -/
 lemma isContained_top_iff_card_le [Fintype V] [Fintype W] :
-    H ⊑ (⊤ : SimpleGraph V) ↔ Fintype.card W ≤ Fintype.card V :=
+    H ⊑ (⊤ : SimpleGraph V) ↔ card W ≤ card V :=
   ⟨fun ⟨f⟩ ↦ Fintype.card_le_of_embedding f.toEmbedding,
     fun h ↦ ⟨Copy.top (Function.Embedding.nonempty_of_card_le h).some⟩⟩
 
@@ -53,17 +52,26 @@ theorem labelledCopyCount_eq_card_copy [Fintype (Copy H G)] :
   rw [labelledCopyCount]
   convert rfl
 
+/-- `labelledCopyCount` is invariant under isomorphism of the host graph. -/
 theorem labelledCopyCount_congr_left (f : G ≃g H) :
     G.labelledCopyCount I = H.labelledCopyCount I := by
   classical simp_rw [labelledCopyCount_eq_card_copy, Fintype.card_eq]
   exact ⟨⟨fun c ↦ f.toCopy.comp c, fun c ↦ f.symm.toCopy.comp c,
     fun c ↦ by ext; simp, fun c ↦ by ext; simp⟩⟩
 
+/-- `labelledCopyCount` is invariant under isomorphism of the copied graph. -/
 theorem labelledCopyCount_congr_right (f : H ≃g I) :
     G.labelledCopyCount H = G.labelledCopyCount I := by
   classical simp_rw [labelledCopyCount_eq_card_copy, Fintype.card_eq]
   exact ⟨⟨fun c ↦ c.comp f.symm.toCopy, fun c ↦ c.comp f.toCopy,
     fun c ↦ by ext; simp, fun c ↦ by ext; simp⟩⟩
+
+/-- The number of labelled copies of `⊥` in `G` is the number of injections from `W` to the
+vertices of `G`. -/
+theorem labelledCopyCount_bot (G : SimpleGraph V) :
+    G.labelledCopyCount (⊥ : SimpleGraph W) = (card V).descFactorial (card W) := by classical
+  rw [labelledCopyCount_eq_card_copy, ← Fintype.card_embedding_eq]
+  exact Fintype.card_congr ⟨Copy.toEmbedding, Copy.bot, fun f ↦ Copy.ext fun w ↦ rfl, fun f ↦ rfl⟩
 
 variable [DecidableEq V] [Fintype (Copy H G)]
 
@@ -93,8 +101,6 @@ theorem labelledCopyCount_induce_eq_card_subtype_copy (s : Finset V) :
     ← card_univ, ← subtype_univ, card_subtype]
 
 omit [DecidableEq V] [Fintype (Copy H G)] in
-/-- The number of copies of `H` in the induced subgraph of `G` by `s` is at most the number of
-copies of `H` in `G`. -/
 theorem labelledCopyCount_induce_le (s : Finset V) :
     (G.induce s).labelledCopyCount H ≤ G.labelledCopyCount H := by classical
   rw [labelledCopyCount_induce_eq_card_subtype_copy, labelledCopyCount_eq_card_copy]
