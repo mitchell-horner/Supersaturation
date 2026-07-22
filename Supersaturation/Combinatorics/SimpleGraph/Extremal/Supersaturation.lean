@@ -5,7 +5,7 @@ import Supersaturation.Combinatorics.SimpleGraph.Finite
 import Supersaturation.Data.Finset.Powerset
 import Supersaturation.Data.Nat.Choose.Basic
 
-open Asymptotics Filter Finset Fintype Function Real Topology
+open Filter Finset Fintype Function
 
 namespace SimpleGraph
 
@@ -45,7 +45,7 @@ theorem le_card_turanDenseSubsets [DecidableRel G.Adj] {k : ℕ} (hk : 2 ≤ k) 
     (h : #G.edgeFinset ≥ (H.turanDensity + ε) * n.choose 2) :
     ε / 2 * n.choose k ≤ #(turanDenseSubsets G k H (ε / 2)) := by
   -- double count the `k`-sized sets with induced subgraphs that have sufficient edges
-  set S := turanDenseSubsets G k H (ε / 2) with hS_def
+  set S := turanDenseSubsets G k H (ε / 2)
   have hS_subset : S ⊆ univ.powersetCard k := filter_subset _ _
   have hS : #G.edgeFinset * (n - 2).choose (k - 2) ≤ #S * k.choose 2
       + (n.choose k - #S) * (H.turanDensity + ε / 2) * k.choose 2 := by classical
@@ -101,7 +101,8 @@ theorem turanDenseGraphs.minLabelledCopyCount_eq_inf' (h : H.turanDensity + ε �
       = (turanDenseGraphs n H ε).inf' (turanDenseGraphs_nonempty h) (labelledCopyCount · H) :=
   WithTop.untopD_eq_iff.mpr <| Or.inl <| Eq.symm <| coe_inf' (turanDenseGraphs_nonempty h) _
 
-/-- The minimum number of copies of `H` in any simple graph in `turanDenseGraphs` is positive, given
+/-- The minimum number of labelled copies of `H` in any simple graph in `turanDenseGraphs` is
+positive, given
 at least `turanDensityConst H ε` many vertices. -/
 theorem turanDenseGraphs.minLabelledCopyCount_pos (hε_pos : 0 < ε)
     (h_verts : turanDensityConst H ε ≤ n) (h : H.turanDensity + ε ≤ 1) :
@@ -166,7 +167,8 @@ theorem supersaturationConst_pos (H : SimpleGraph W) {ε : ℝ} (hε_pos : 0 < �
   · exact_mod_cast Nat.choose_pos (card_le_turanDensityConst H (half_pos hε_pos) h)
 
 /-- If `G` has sufficiently many vertices `n` and at least `(turanDensity H + ε) * n.choose 2`
-many edges, then `G` contains at least `supersaturationConst H ε * n ^ v(H)` copies of `H`.
+many edges, then `G` contains at least `supersaturationConst H ε * n ^ v(H)` labelled copies of
+`H`.
 
 This is the **supersaturation theorem** for simple graphs. -/
 theorem eventually_labelledCopyCount_ge_of_card_edgeFinset {ε : ℝ} (hε_pos : 0 < ε) :
@@ -184,7 +186,7 @@ theorem eventually_labelledCopyCount_ge_of_card_edgeFinset {ε : ℝ} (hε_pos :
     simp_rw [supersaturationConst, if_pos hε_pos]
     -- `k` is large enough that every `F ∈ turanDenseGraphs` contains `H`
     set k := turanDensityConst H (ε / 2)
-    have hk_le_cardW : card W ≤ k := card_le_turanDensityConst H (half_pos hε_pos) hπH_halfε.le
+    have hcardW_le_k : card W ≤ k := card_le_turanDensityConst H (half_pos hε_pos) hπH_halfε.le
     set c := turanDenseGraphs.minLabelledCopyCount k H (ε / 2) with hc_def
     set δ' := c * (ε / 2) / k.choose (card W) with hδ'_def
     rcases lt_or_ge (card W) 2 with hcardW | hcardW
@@ -201,7 +203,7 @@ theorem eventually_labelledCopyCount_ge_of_card_edgeFinset {ε : ℝ} (hε_pos :
         rw [hH, labelledCopyCount_bot, Fintype.card_fin]
       have hδ'_le_one : δ' / (2 ^ card W * (card W).factorial) ≤ 1 := by
         rw [hδ'_def, div_div,
-          div_le_one <| mul_pos (mod_cast Nat.choose_pos hk_le_cardW) (by positivity)]
+          div_le_one <| mul_pos (mod_cast Nat.choose_pos hcardW_le_k) (by positivity)]
         have hc_le' : (c : ℝ) ≤ (card W).factorial * k.choose (card W) := mod_cast hc_le
         have hε2 : ε / 2 ≤ 1 := by linarith [turanDensity_nonneg H]
         have h2pow : (1 : ℝ) ≤ 2 ^ card W := one_le_pow₀ one_le_two
@@ -215,12 +217,12 @@ theorem eventually_labelledCopyCount_ge_of_card_edgeFinset {ε : ℝ} (hε_pos :
         rcases (by omega : card W = 0 ∨ card W = 1) with h | h <;> simp [h]
       rw [ge_iff_le, hcount]
       exact mul_le_of_le_one_left (by positivity) hδ'_le_one
-    have hk_2 : 2 ≤ k := hcardW.trans hk_le_cardW
+    have hk_2 : 2 ≤ k := hcardW.trans hcardW_le_k
     -- the minimum number of copies of `H` in any `F ∈ turanDenseGraphs` is positive
     have hc_pos : 0 < c :=
       turanDenseGraphs.minLabelledCopyCount_pos (half_pos hε_pos) le_rfl hπH_halfε.le
     have hδ'_pos : 0 < δ' :=
-      div_pos (mul_pos (mod_cast hc_pos) (half_pos hε_pos)) (mod_cast Nat.choose_pos hk_le_cardW)
+      div_pos (mul_pos (mod_cast hc_pos) (half_pos hε_pos)) (mod_cast Nat.choose_pos hcardW_le_k)
     -- `n ^ card W / (2 ^ card W * (card W)!)` is less than `n.choose (card W)`
     have hpow_le_choose : ∀ n : ℕ, 2 * card W ≤ n →
         (n : ℝ) ^ card W / (2 ^ card W * (card W).factorial) ≤ n.choose (card W) := by
@@ -242,14 +244,14 @@ theorem eventually_labelledCopyCount_ge_of_card_edgeFinset {ε : ℝ} (hε_pos :
       have h_choose_mul : (n.choose (card W) : ℝ)
           = n.choose k / (n - card W).choose (k - card W) * k.choose (card W) := by
         rw [div_mul_eq_mul_div, eq_div_iff_mul_eq (mod_cast Nat.choose_sub_ne_zero hk_n)]
-        exact_mod_cast (Nat.choose_mul hk_le_cardW).symm
-      rw [h_choose_mul, mul_rotate', mul_div_cancel₀ _ (mod_cast Nat.choose_ne_zero hk_le_cardW),
+        exact_mod_cast (Nat.choose_mul hcardW_le_k).symm
+      rw [h_choose_mul, mul_rotate', mul_div_cancel₀ _ (mod_cast Nat.choose_ne_zero hcardW_le_k),
         div_mul_eq_mul_div, mul_comm, div_le_iff₀ (mod_cast Nat.choose_sub_pos hk_n)]
       trans c * #(turanDenseSubsets G k H (ε / 2))
       · rw [mul_assoc, mul_le_mul_iff_right₀ (mod_cast hc_pos)]
         exact le_card_turanDenseSubsets hk_2 hε_pos hcard_edges
       · norm_cast
-        exact turanDenseGraphs.minLabelledCopyCount_mul_card_turanDenseSubsets_le hk_le_cardW
+        exact turanDenseGraphs.minLabelledCopyCount_mul_card_turanDenseSubsets_le hcardW_le_k
           hπH_halfε.le
     rw [ge_iff_le, div_mul_eq_mul_div, mul_div_assoc]
     exact h.trans' <| mul_le_mul_of_nonneg_left

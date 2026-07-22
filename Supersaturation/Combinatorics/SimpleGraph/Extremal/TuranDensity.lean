@@ -1,7 +1,7 @@
 import Mathlib
 import Supersaturation.Combinatorics.SimpleGraph.Extremal.Basic
 
-open Asymptotics Filter Finset Fintype Topology
+open Filter Finset Fintype
 
 namespace SimpleGraph
 
