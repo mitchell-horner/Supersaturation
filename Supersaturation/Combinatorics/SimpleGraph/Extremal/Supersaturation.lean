@@ -2,7 +2,6 @@ import Mathlib
 import Supersaturation.Combinatorics.SimpleGraph.Copy
 import Supersaturation.Combinatorics.SimpleGraph.Extremal.TuranDensity
 import Supersaturation.Combinatorics.SimpleGraph.Finite
-import Supersaturation.Data.Finset.Powerset
 import Supersaturation.Data.Nat.Choose.Basic
 
 open Filter Finset Fintype Function
@@ -54,7 +53,7 @@ theorem le_card_turanDenseSubsets [DecidableRel G.Adj] {k : ℕ} (hk : 2 ≤ k) 
     trans (#T : ℝ)
     · have he {e : G.edgeFinset} := hk.trans_eq' (card_toFinset_mem_edgeFinset e).symm
       simp_rw [T, card_filter, sum_product_right, ← card_filter, ← sum_attach G.edgeFinset,
-        card_filter_powersetCard_superset (subset_univ _) he, card_univ,
+        card_filter_powersetCard_subset _ _ _ (subset_univ _) he, card_univ,
         card_toFinset_mem_edgeFinset, sum_const, smul_eq_mul, card_attach, Nat.cast_mul,
         Fintype.card_fin, le_rfl]
     · simp_rw [T, card_filter, sum_product, ← card_filter,
@@ -142,7 +141,7 @@ theorem turanDenseGraphs.minLabelledCopyCount_mul_card_turanDenseSubsets_le [Dec
   · have hf {f : Copy H G} : #(univ.map f.toEmbedding) ≤ k := by
       rwa [← card_univ, ← card_map f.toEmbedding] at hcard
     classical simp_rw [T, card_filter, sum_product_right, ← card_filter,
-      card_filter_powersetCard_superset (subset_univ _) hf, card_map, card_univ,
+      card_filter_powersetCard_subset _ _ _ (subset_univ _) hf, card_map, card_univ,
       Fintype.card_fin, sum_const, smul_eq_mul, card_univ, labelledCopyCount_eq_card_copy, le_rfl]
 
 /-- Simple graphs on sufficiently many vertices `n` having at least
