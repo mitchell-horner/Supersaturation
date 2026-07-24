@@ -26,13 +26,12 @@ theorem card_le_turanDensityConst [Fintype W] (H : SimpleGraph W) {ε : ℝ} (h�
     (h : H.turanDensity + ε ≤ 1) : card W ≤ turanDensityConst H ε := by classical
   rw [turanDensityConst, dif_pos hε_pos, Nat.le_find_iff]
   intro m hm hp
-  have := hp m le_rfl (G := (⊤ : SimpleGraph (Fin m))) ?_
-  · obtain ⟨f⟩ := this
-    have := Fintype.card_le_of_embedding f.toEmbedding
-    rw [Fintype.card_fin] at this
-    omega
-  · rw [card_edgeFinset_top_eq_card_choose_two, Fintype.card_fin, ge_iff_le]
+  obtain ⟨f⟩ := by
+    apply hp m le_rfl (G := (⊤ : SimpleGraph (Fin m)))
+    rw [card_edgeFinset_top_eq_card_choose_two, Fintype.card_fin, ge_iff_le]
     exact mul_le_of_le_one_left (Nat.cast_nonneg _) h
+  have : card W ≤ m := by simpa using Fintype.card_le_of_embedding f.toEmbedding
+  omega
 
 theorem turanDensity_le_one (H : SimpleGraph W) : turanDensity H ≤ 1 := by
   rw [turanDensity_eq_csInf]
