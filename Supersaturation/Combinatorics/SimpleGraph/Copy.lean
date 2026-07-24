@@ -13,20 +13,16 @@ protected def top (f : W ↪ V) : Copy H (⊤ : SimpleGraph V) :=
   ⟨⟨f, fun h ↦ f.injective.ne h.ne⟩, f.injective⟩
 
 /-- The copy of `H` in `H.map ·`. -/
-protected def map (f : W ↪ V) : Copy H (H.map f) :=
-  ⟨⟨f, fun h ↦ by simp [h]⟩, f.injective⟩
+protected abbrev map (f : W ↪ V) : Copy H (H.map f) := (Embedding.map f H).toCopy
 
 /-- The copy of `G.map ·` in `G`. -/
-protected def map' (f : V ≃ W) : Copy (G.map f) G :=
-  ⟨⟨f.symm, fun hadj ↦ by simpa [← map_adj_apply (f := (f : V ↪ W))] using hadj⟩, f.symm.injective⟩
+protected abbrev map' (f : V ≃ W) : Copy (G.map f) G := (Iso.map f G).symm.toCopy
 
 /-- The copy of `G.comap ·` in `G`. -/
-protected def comap (f : W ↪ V) : Copy (G.comap f) G :=
-  ⟨⟨f, fun h ↦ by simpa using h⟩, f.injective⟩
+protected abbrev comap (f : W ↪ V) : Copy (G.comap f) G := (Embedding.comap f G).toCopy
 
 /-- The copy of `H` in `H.comap ·`. -/
-protected def comap' (f : V ≃ W) : Copy H (H.comap f) :=
-  ⟨⟨f.symm, fun h ↦ by simpa using h⟩, f.symm.injective⟩
+protected abbrev comap' (f : V ≃ W) : Copy H (H.comap f) := (Iso.comap f H).symm.toCopy
 
 end Copy
 
