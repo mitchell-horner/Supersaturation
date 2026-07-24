@@ -2,7 +2,6 @@ import Mathlib
 import Supersaturation.Combinatorics.SimpleGraph.Copy
 import Supersaturation.Combinatorics.SimpleGraph.Extremal.TuranDensity
 import Supersaturation.Combinatorics.SimpleGraph.Finite
-import Supersaturation.Data.Nat.Choose.Basic
 
 open Filter Finset Fintype Function
 
@@ -242,10 +241,12 @@ theorem eventually_labelledCopyCount_ge_of_card_edgeFinset {ε : ℝ} (hε_pos :
     have h : δ' * n.choose (card W) ≤ G.labelledCopyCount H := by
       have h_choose_mul : (n.choose (card W) : ℝ)
           = n.choose k / (n - card W).choose (k - card W) * k.choose (card W) := by
-        rw [div_mul_eq_mul_div, eq_div_iff_mul_eq (mod_cast Nat.choose_sub_ne_zero hk_n)]
+        rw [div_mul_eq_mul_div,
+          eq_div_iff_mul_eq (mod_cast Nat.choose_ne_zero (Nat.sub_le_sub_right hk_n (card W)))]
         exact_mod_cast (Nat.choose_mul hcardW_le_k).symm
       rw [h_choose_mul, mul_rotate', mul_div_cancel₀ _ (mod_cast Nat.choose_ne_zero hcardW_le_k),
-        div_mul_eq_mul_div, mul_comm, div_le_iff₀ (mod_cast Nat.choose_sub_pos hk_n)]
+        div_mul_eq_mul_div, mul_comm,
+        div_le_iff₀ (mod_cast Nat.choose_pos (Nat.sub_le_sub_right hk_n (card W)))]
       trans c * #(turanDenseSubsets G k H (ε / 2))
       · rw [mul_assoc, mul_le_mul_iff_right₀ (mod_cast hc_pos)]
         exact le_card_turanDenseSubsets hk_2 hε_pos hcard_edges
