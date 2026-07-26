@@ -20,3 +20,10 @@ theorem eventually_labelledCopyCount_ge_of_card_edgeFinset {ε : ℝ} (hε_pos :
 The progress towards upstreaming these results to [mathlib](https://github.com/leanprover-community/mathlib4) is as follows:
 
 - [ ] The supersaturation theorem
+
+## Future work
+
+Future work could include:
+
+- Wenger's theorem
+- The Bondy-Simonovits theorem
