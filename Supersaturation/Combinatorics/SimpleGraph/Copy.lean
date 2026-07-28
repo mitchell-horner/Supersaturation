@@ -28,6 +28,9 @@ end Copy
 
 section IsContained
 
+theorem bot_isContained_iff {G : SimpleGraph V} : (⊥ : SimpleGraph W) ⊑ G ↔ Nonempty (W ↪ V) :=
+  ⟨Nonempty.intro ∘ Copy.toEmbedding ∘ Nonempty.some, Copy.isContained ∘ Copy.bot ∘ Nonempty.some⟩
+
 lemma isContained_top_iff_card_le [Fintype V] [Fintype W] :
     H ⊑ (⊤ : SimpleGraph V) ↔ card W ≤ card V := by
   rw [isContained_top_iff, Embedding.nonempty_iff_card_le]
