@@ -23,15 +23,15 @@ theorem turanDensity_nonneg (H : SimpleGraph W) : 0 ≤ turanDensity H := by
 /-- There are at least `card W` many vertices at `turanDensityConst`, since simple graphs on
 fewer vertices cannot contain `H`. -/
 theorem card_le_turanDensityConst [Fintype W] (H : SimpleGraph W) {ε : ℝ} (hε_pos : 0 < ε)
-    (h : H.turanDensity + ε ≤ 1) : card W ≤ turanDensityConst H ε := by classical
+    (h : H.turanDensity + ε ≤ 1) : card W ≤ turanDensityConst H ε := by
+  classical
   rw [turanDensityConst, dif_pos hε_pos, Nat.le_find_iff]
-  intro m hm hp
-  obtain ⟨f⟩ := by
-    apply hp m le_rfl (G := (⊤ : SimpleGraph (Fin m)))
-    rw [card_edgeFinset_top_eq_card_choose_two, Fintype.card_fin, ge_iff_le]
-    exact mul_le_of_le_one_left (Nat.cast_nonneg _) h
-  have : card W ≤ m := by simpa using Fintype.card_le_of_embedding f.toEmbedding
-  omega
+  refine fun m (hm : m < card W) h_find ↦ absurd hm ?_
+  obtain ⟨f : Copy H ⊤⟩ := by
+    apply h_find m le_rfl (G := ⊤)
+    rw [card_edgeFinset_top_eq_card_choose_two, Fintype.card_fin]
+    exact mul_le_of_le_one_left (Nat.cast_nonneg (m.choose 2)) h
+  simpa using Fintype.card_le_of_embedding f.toEmbedding
 
 theorem turanDensity_le_one (H : SimpleGraph W) : turanDensity H ≤ 1 := by
   rw [turanDensity_eq_csInf]
