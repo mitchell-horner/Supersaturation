@@ -29,9 +29,8 @@ end Copy
 section IsContained
 
 lemma isContained_top_iff_card_le [Fintype V] [Fintype W] :
-    H ⊑ (⊤ : SimpleGraph V) ↔ card W ≤ card V :=
-  ⟨fun ⟨f⟩ ↦ Fintype.card_le_of_embedding f.toEmbedding,
-    fun h ↦ ⟨Copy.top (Function.Embedding.nonempty_of_card_le h).some⟩⟩
+    H ⊑ (⊤ : SimpleGraph V) ↔ card W ≤ card V := by
+  rw [isContained_top_iff, Embedding.nonempty_iff_card_le]
 
 protected alias IsContained.top := isContained_top_iff_card_le
 
